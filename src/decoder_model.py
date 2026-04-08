@@ -383,7 +383,10 @@ if __name__ == "__main__":
     panel = DecoderPanel()
     
     # Plot dose-response curves
-    panel.plot_dose_response_curves('/home/claude/ca_signature_analyzer/outputs/cdpk_dose_response.png')
+    from pathlib import Path
+    output_dir = Path(__file__).parent.parent / "outputs"
+    output_dir.mkdir(exist_ok=True)
+    panel.plot_dose_response_curves(str(output_dir / "cdpk_dose_response.png"))
     
     # Test with example Ca2+ trace
     t = np.linspace(0, 300, 3000)
@@ -417,5 +420,5 @@ if __name__ == "__main__":
     ax2.grid(True, alpha=0.3)
     
     plt.tight_layout()
-    plt.savefig('/home/claude/ca_signature_analyzer/outputs/cdpk_example_response.png', dpi=150)
-    print("Saved example response to outputs/cdpk_example_response.png")
+    plt.savefig(str(output_dir / "cdpk_example_response.png"), dpi=150)
+    print(f"Saved example response to {output_dir / 'cdpk_example_response.png'}")

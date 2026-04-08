@@ -12,6 +12,7 @@ ODE-based simulation of plant Ca²⁺ dynamics including:
 import numpy as np
 from scipy.integrate import odeint
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Callable, Dict, Tuple, Optional
 import matplotlib.pyplot as plt
 
@@ -191,12 +192,15 @@ class CalciumDynamicsModel:
         
         return np.array([dCa_cyt, dCa_ER, dCa_vac, dIP3])
     
-    def simulate(self, stimulus_type: str, duration: float = 600.0, 
+    VALID_STIMULI = ("ABA", "NaCl", "mechanical_touch", "flg22",
+                     "cold_shock", "H2O2", "glutamate")
+
+    def simulate(self, stimulus_type: str, duration: float = 600.0,
                 dt: float = 0.1, intensity: float = 1.0,
                 initial_state: Optional[np.ndarray] = None) -> Tuple[np.ndarray, np.ndarray]:
         """
         Simulate Ca²⁺ dynamics.
-        
+
         Parameters
         ----------
         stimulus_type : str
@@ -209,14 +213,29 @@ class CalciumDynamicsModel:
             Stimulus intensity (0-1 scale, or higher)
         initial_state : Optional[np.ndarray]
             Initial state [Ca_cyt, Ca_ER, Ca_vac, IP3]
-            
+
         Returns
         -------
         t : np.ndarray
             Time points
         y : np.ndarray
             State trajectories [n_timepoints, 4]
+
+        Raises
+        ------
+        ValueError
+            If stimulus_type is invalid, duration is negative, or dt is non-positive.
         """
+        if stimulus_type not in self.VALID_STIMULI:
+            raise ValueError(
+                f"Invalid stimulus_type '{stimulus_type}'. "
+                f"Must be one of: {self.VALID_STIMULI}"
+            )
+        if dt <= 0:
+            raise ValueError(f"dt must be > 0, got {dt}")
+        if intensity < 0:
+            raise ValueError(f"intensity must be >= 0, got {intensity}")
+
         # Time points
         t = np.arange(0, duration, dt)
         
@@ -360,8 +379,10 @@ def run_example_simulations():
     
     axes[-1].set_xlabel('Time (s)')
     plt.tight_layout()
-    plt.savefig('/home/claude/ca_signature_analyzer/outputs/example_simulations.png', dpi=150)
-    print("\nSaved plot to outputs/example_simulations.png")
+    output_dir = Path(__file__).parent.parent / "outputs"
+    output_dir.mkdir(exist_ok=True)
+    plt.savefig(str(output_dir / "example_simulations.png"), dpi=150)
+    print(f"\nSaved plot to {output_dir / 'example_simulations.png'}")
 
 
 if __name__ == "__main__":
