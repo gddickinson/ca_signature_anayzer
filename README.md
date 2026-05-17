@@ -396,3 +396,7 @@ information theory analysis.
   - Standalone scripts
   - Example database
   - Comprehensive documentation
+
+
+---
+*Built with AI assistance from [Claude (Anthropic)](https://claude.com/).*
